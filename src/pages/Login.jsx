@@ -1,86 +1,140 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { signIn } from '../services/auth';
-import { PenLine, Mail, Lock, AlertCircle, LogIn } from 'lucide-react';
 
-export default function Login() {
+export default function Login({ setSession }) {
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.email || !form.password) { setError('Please fill in all fields.'); return; }
-    setLoading(true); setError('');
-    const { error: err } = await signIn(form);
+    if (!identifier || !password) { setError('Please fill in all fields.'); return; }
+
+    setLoading(true);
+    setError('');
+    const { data, error: err } = await signIn({ username: identifier, password });
     setLoading(false);
-    if (err) { setError(err.message); return; }
+
+    if (err) { setError(err.message || 'Invalid credentials'); return; }
+    setSession(data);   // ← updates App state immediately, triggers redirect
     navigate('/dashboard');
   };
 
   return (
-    <div className="auth-page">
-      <div className="auth-card">
-        {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <div style={{ width: 44, height: 44, background: 'var(--accent)', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-            <PenLine size={22} color="#fff" />
-          </div>
-          <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', marginBottom: 6 }}>Welcome back</h1>
-          <p style={{ fontSize: 14, color: 'var(--text-secondary)' }}>Sign in to your LetMeWrite account</p>
+    <div style={styles.page}>
+      <div style={styles.card}>
+        <div style={styles.logo}>
+          <span style={{ fontSize: 22, fontWeight: 900, color: '#1d9bf0' }}>LMW</span>
         </div>
+        <h1 style={styles.title}>Welcome back</h1>
+        <p style={styles.sub}>Sign in to your LetMeWrite account</p>
 
-        {error && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 14px', borderRadius: 'var(--radius-md)', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', marginBottom: 20, fontSize: 14, color: '#ef4444' }}>
-            <AlertCircle size={15} /> {error}
+        {error && <div style={styles.errorBox}>{error}</div>}
+
+        <form onSubmit={handleSubmit} style={styles.form}>
+          <div style={styles.group}>
+            <label style={styles.label}>Username or Phone</label>
+            <input
+              style={styles.input}
+              type="text"
+              placeholder="RahulSharma or 9876543210"
+              value={identifier}
+              onChange={e => setIdentifier(e.target.value)}
+              autoFocus
+            />
           </div>
-        )}
-
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label className="form-label">Email</label>
-            <div style={{ position: 'relative' }}>
-              <Mail size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-              <input
-                type="email" placeholder="you@example.com"
-                value={form.email}
-                onChange={e => setForm({ ...form, email: e.target.value })}
-                className="form-input"
-                style={{ paddingLeft: 36 }}
-              />
-            </div>
+          <div style={styles.group}>
+            <label style={styles.label}>Password</label>
+            <input
+              style={styles.input}
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+            />
           </div>
-
-          <div className="form-group">
-            <label className="form-label">Password</label>
-            <div style={{ position: 'relative' }}>
-              <Lock size={15} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-              <input
-                type="password" placeholder="••••••••"
-                value={form.password}
-                onChange={e => setForm({ ...form, password: e.target.value })}
-                className="form-input"
-                style={{ paddingLeft: 36 }}
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="btn btn-primary"
-            style={{ width: '100%', justifyContent: 'center', marginTop: 8 }}
-            disabled={loading}
-          >
-            {loading ? 'Signing in…' : <><LogIn size={16} /> Sign In</>}
+          <button type="submit" style={{ ...styles.btn, opacity: loading ? 0.7 : 1 }} disabled={loading}>
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 
-        <p style={{ textAlign: 'center', marginTop: 24, fontSize: 14, color: 'var(--text-secondary)' }}>
+        <p style={styles.footer}>
           Don't have an account?{' '}
-          <Link to="/signup" style={{ color: 'var(--accent)', fontWeight: 600 }}>Sign up free</Link>
+          <Link to="/signup" style={styles.link}>Sign up free</Link>
         </p>
       </div>
     </div>
   );
 }
+
+const styles = {
+  page: {
+    minHeight: '100vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: '#f7f9f9',
+    padding: '24px',
+  },
+  card: {
+    width: '100%',
+    maxWidth: 400,
+    background: '#fff',
+    border: '1px solid #eff3f4',
+    borderRadius: 16,
+    padding: '40px 36px',
+    boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
+  },
+  logo: {
+    width: 48,
+    height: 48,
+    background: '#e8f5fe',
+    borderRadius: 12,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  title: { fontSize: 22, fontWeight: 800, color: '#0f1419', marginBottom: 6 },
+  sub: { fontSize: 14, color: '#536471', marginBottom: 28 },
+  errorBox: {
+    background: '#fef2f2',
+    border: '1px solid #fecaca',
+    color: '#dc2626',
+    borderRadius: 8,
+    padding: '10px 14px',
+    fontSize: 13,
+    marginBottom: 18,
+  },
+  form: { display: 'flex', flexDirection: 'column', gap: 16 },
+  group: { display: 'flex', flexDirection: 'column', gap: 6 },
+  label: { fontSize: 13, fontWeight: 500, color: '#536471' },
+  input: {
+    padding: '11px 14px',
+    border: '1px solid #eff3f4',
+    borderRadius: 10,
+    fontSize: 14,
+    color: '#0f1419',
+    background: '#fff',
+    outline: 'none',
+    transition: 'border-color 0.2s',
+    fontFamily: 'inherit',
+  },
+  btn: {
+    marginTop: 4,
+    background: '#1d9bf0',
+    color: '#fff',
+    border: 'none',
+    borderRadius: 10,
+    padding: '12px',
+    fontSize: 15,
+    fontWeight: 700,
+    cursor: 'pointer',
+    transition: 'background 0.2s',
+  },
+  footer: { textAlign: 'center', marginTop: 24, fontSize: 14, color: '#536471' },
+  link: { color: '#1d9bf0', fontWeight: 600, textDecoration: 'none' },
+};

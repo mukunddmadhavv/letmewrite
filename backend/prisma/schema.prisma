@@ -10,9 +10,10 @@ datasource db {
 model User {
   id        String   @id @default(uuid())
   username  String   @unique
-  phone     String
+  phone     String   @unique
   password  String
   orders    Order[]
+  files     File[]
   createdAt DateTime @default(now())
 }
 
@@ -27,5 +28,17 @@ model Order {
   instructions String?
   status       String   @default("Pending")
   cost         Int
+  createdAt    DateTime @default(now())
+}
+
+model File {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  originalName String
+  filepath     String
+  mimetype     String
+  size         Int
+  status       String   @default("Pending")
   createdAt    DateTime @default(now())
 }

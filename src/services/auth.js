@@ -1,25 +1,50 @@
-import { supabase } from './supabase';
+const API_URL = 'http://localhost:5001/api/auth';
 
-export const signUp = async ({ email, password, name }) => {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: { data: { full_name: name } },
-  });
-  return { data, error };
+export const signUp = async ({ username, phone, password }) => {
+  try {
+    const res = await fetch(`${API_URL}/signup`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, phone, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Signup failed');
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+    return { data, error: null };
+  } catch (error) {
+    return { data: null, error };
+  }
 };
 
-export const signIn = async ({ email, password }) => {
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  return { data, error };
+export const signIn = async ({ username, password }) => {
+  try {
+    const res = await fetch(`${API_URL}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Login failed');
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('user', JSON.stringify(data.user));
+    return { data, error: null };
+  } catch (error) {
+    return { data: null, error };
+  }
 };
 
 export const signOut = async () => {
-  const { error } = await supabase.auth.signOut();
-  return { error };
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  return { error: null };
 };
 
 export const getSession = async () => {
-  const { data } = await supabase.auth.getSession();
-  return data.session;
+  const token = localStorage.getItem('token');
+  const user = localStorage.getItem('user');
+  if (token && user) {
+    return { user: JSON.parse(user), token };
+  }
+  return null;
 };

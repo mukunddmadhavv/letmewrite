@@ -4,12 +4,6 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
-@import "tw-animate-css";
-
-@import "shadcn/tailwind.css";
-
-@import "@fontsource-variable/geist";
-
 /* ── CSS Variables ─────────────────────────────────────────── */
 :root {
   --bg-primary: #ffffff;
@@ -342,12 +336,13 @@ textarea.form-input { resize: vertical; min-height: 100px; }
     --sidebar-ring: oklch(0.556 0 0);
   }
   * {
-    @apply border-border outline-ring/50;
+    border-color: var(--border);
   }
   body {
-    @apply bg-background text-foreground;
+    background: var(--background);
+    color: var(--foreground);
   }
   html {
-    @apply font-sans;
+    font-family: 'Inter', system-ui, sans-serif;
   }
 }

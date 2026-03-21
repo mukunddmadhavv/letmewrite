@@ -1,28 +1,35 @@
-import { supabase } from './supabase';
+const API_URL = 'http://localhost:5001/api/orders';
 
-export const createOrder = async ({ title, subject, pages, deadline, instructions, userId }) => {
-  const { data, error } = await supabase
-    .from('orders')
-    .insert([{ title, subject, pages, deadline, instructions, user_id: userId, status: 'Pending', cost: pages * 10 }])
-    .select()
-    .single();
-  return { data, error };
+const getHeaders = () => {
+  const token = localStorage.getItem('token');
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
 };
 
-export const getUserOrders = async (userId) => {
-  const { data, error } = await supabase
-    .from('orders')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false });
-  return { data, error };
+export const createOrder = async (orderData) => {
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(orderData),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to create order');
+    return { data: data.data, error: null };
+  } catch (error) {
+    return { data: null, error };
+  }
 };
 
-export const getOrderById = async (id) => {
-  const { data, error } = await supabase
-    .from('orders')
-    .select('*')
-    .eq('id', id)
-    .single();
-  return { data, error };
+export const getUserOrders = async () => {
+  try {
+    const res = await fetch(API_URL, { headers: getHeaders() });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to fetch orders');
+    return { data: data.data, error: null };
+  } catch (error) {
+    return { data: null, error };
+  }
 };

@@ -35,7 +35,7 @@ export default function OrderForm({ session }) {
     });
     setLoading(false);
     if (err) { setError(err.message); return; }
-    navigate('/dashboard');
+    navigate('/payment');
   };
 
   return (
