@@ -8,29 +8,23 @@ import {
 } from 'lucide-react';
 
 const steps = [
-  { icon: Upload,   title: 'Submit',      desc:  'Fill in your assignment details — subject, pages, deadline, and any special instructions.'   },
-  { icon: FileText, title: 'We Write',    desc:  'Our expert writers craft your assignment with proper research, formatting, and citations.'     },
-  { icon: Download, title: 'You Download',desc:  'Review your completed assignment and download it. Free revisions if needed.'                   },
-];
-
-const testimonials = [
-  { name: 'Priya S.',    college: 'Delhi University',    rating: 5, text: 'Handed in a 12-page law assignment. Got it back within 24 hours — properly structured and referenced. Lifesaver before finals.' },
-  { name: 'Aryan M.',   college: 'VIT Vellore',         rating: 5, text: 'I was skeptical about ₹10/page being this good. But the quality actually surprised me. Will definitely order again.' },
-  { name: 'Sneha R.',   college: 'Mumbai University',   rating: 5, text: 'Marketing case study, 8 pages. Clean work with zero plagiarism. Perfect for my MBA submissions.' },
+  { icon: Upload, title: 'Submit', desc: 'Fill in your assignment details — subject, pages, deadline, and any special instructions.' },
+  { icon: FileText, title: 'We Write', desc: 'Our expert writers craft your assignment with proper research, formatting, and citations.' },
+  { icon: Download, title: 'You Download', desc: 'Review your completed assignment and download it. Free revisions if needed.' },
 ];
 
 const faqs = [
-  { q: 'Is this plagiarism-free?',               a: 'Yes. Every assignment is written from scratch and passes standard plagiarism checks.' },
-  { q: 'How fast can I get my assignment?',       a: 'We offer express delivery in as little as 6 hours for urgent orders.' },
-  { q: 'What subjects are covered?',              a: 'Engineering, Law, Management, Science, Arts, Commerce — all major streams.' },
-  { q: 'Can I request revisions?',                a: 'Absolutely. Free unlimited revisions until you are satisfied.' },
-  { q: 'How do I pay?',                           a: 'UPI, Net Banking, or card payment. 100% secure checkout.' },
+  { q: 'Is this plagiarism-free?', a: 'Yes. Every assignment is written from scratch and passes standard plagiarism checks.' },
+  { q: 'How fast can I get my assignment?', a: 'We offer delivery in less 24-48 hours.' },
+  { q: 'What subjects are covered?', a: 'Engineering, Law, Management, Science, Arts, Commerce — all major streams.' },
+  { q: 'Can I request revisions?', a: 'No,you cannot' },
+  { q: 'How do I pay?', a: 'UPI, Net Banking, or card payment. 100% secure checkout.' },
 ];
 
 const features = [
-  { icon: Shield, title: 'Plagiarism-Free',  desc: 'Every assignment verified clean.' },
-  { icon: Zap,    title: 'Lightning Fast',   desc: 'Express delivery in 6–24 hours.'  },
-  { icon: Clock,  title: 'On-Time Delivery', desc: 'Never miss a deadline again.'     },
+  { icon: Shield, title: 'Plagiarism-Free', desc: 'Every assignment verified clean.' },
+  { icon: Zap, title: 'Lightning Fast', desc: 'Express delivery in 6–24 hours.' },
+  { icon: Clock, title: 'On-Time Delivery', desc: 'Never miss a deadline again.' },
 ];
 
 export default function LandingPage({ session }) {
@@ -76,7 +70,7 @@ export default function LandingPage({ session }) {
             marginBottom: 28,
           }}>
             <Sparkles size={13} />
-            Trusted by 10,000+ students across India
+            From MAIT, To MAIT
           </div>
 
           <h1 style={{
@@ -100,10 +94,17 @@ export default function LandingPage({ session }) {
           </p>
 
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/signup" className="btn btn-primary btn-lg" style={{ animation: 'pulse-glow 3s ease-in-out infinite' }}>
-              Get Started Free
-              <ArrowRight size={18} />
-            </Link>
+            {session ? (
+              <Link to="/order" className="btn btn-primary btn-lg" style={{ animation: 'pulse-glow 3s ease-in-out infinite' }}>
+                Place an Order
+                <ArrowRight size={18} />
+              </Link>
+            ) : (
+              <Link to="/signup" className="btn btn-primary btn-lg" style={{ animation: 'pulse-glow 3s ease-in-out infinite' }}>
+                Get Started Free
+                <ArrowRight size={18} />
+              </Link>
+            )}
             <a href="#how-it-works" className="btn btn-outline btn-lg">
               How It Works
             </a>
@@ -198,32 +199,6 @@ export default function LandingPage({ session }) {
         </div>
       </section>
 
-      {/* ── TESTIMONIALS ─────────────────────────────── */}
-      <section style={{ padding: '100px 0' }}>
-        <div className="container">
-          <SectionHeader label="Testimonials" title="Students Love Us" subtitle="Real reviews from real students." />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginTop: 48 }}>
-            {testimonials.map((t, i) => (
-              <div key={i} className="card" style={{ padding: 28 }}>
-                <div style={{ display: 'flex', gap: 2, marginBottom: 16 }}>
-                  {[...Array(t.rating)].map((_, j) => <Star key={j} size={14} fill="var(--warning)" color="var(--warning)" />)}
-                </div>
-                <p style={{ fontSize: 14, color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: 20, fontStyle: 'italic' }}>"{t.text}"</p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'var(--accent-subtle)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14 }}>
-                    {t.name[0]}
-                  </div>
-                  <div>
-                    <div style={{ fontWeight: 600, fontSize: 14 }}>{t.name}</div>
-                    <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{t.college}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ── FAQ ──────────────────────────────────────── */}
       <section id="faq" style={{ padding: '100px 0', background: 'var(--bg-secondary)' }}>
         <div className="container">
@@ -277,10 +252,17 @@ export default function LandingPage({ session }) {
             <p style={{ fontSize: 16, color: 'var(--text-secondary)', marginBottom: 32 }}>
               Join thousands of students who trust LetMeWrite for their assignments.
             </p>
-            <Link to="/signup" className="btn btn-primary btn-lg">
-              Create Free Account
-              <ArrowRight size={18} />
-            </Link>
+            {session ? (
+              <Link to="/order" className="btn btn-primary btn-lg">
+                Place an Order
+                <ArrowRight size={18} />
+              </Link>
+            ) : (
+              <Link to="/signup" className="btn btn-primary btn-lg">
+                Create Free Account
+                <ArrowRight size={18} />
+              </Link>
+            )}
           </div>
         </div>
       </section>
@@ -292,7 +274,7 @@ export default function LandingPage({ session }) {
             LetMe<span style={{ color: 'var(--accent)' }}>Write</span>.in
           </span>
           <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>
-            © 2024 LetMeWrite.in · All rights reserved
+            © {new Date().getFullYear()} LetMeWrite · From MAIT, To MAIT
           </span>
           <div style={{ display: 'flex', gap: 20, fontSize: 13, color: 'var(--text-muted)' }}>
             <a href="#" style={{ color: 'inherit' }}>Privacy</a>

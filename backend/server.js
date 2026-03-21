@@ -90,11 +90,14 @@ app.post('/api/auth/login', async (req, res) => {
     return res.status(400).json({ error: 'All fields are required' });
 
   try {
-    // Detect: numeric input = phone, else = username
-    const isPhone = /^\d+$/.test(username.trim());
-    const user = isPhone
-      ? await prisma.user.findUnique({ where: { phone: username.trim() } })
-      : await prisma.user.findUnique({ where: { username: username.trim() } });
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { username: username.trim() },
+          { phone: username.trim() }
+        ]
+      }
+    });
 
     if (!user)
       return res.status(400).json({ error: 'Invalid username/phone or password' });

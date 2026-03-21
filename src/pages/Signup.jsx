@@ -21,8 +21,8 @@ export default function Signup({ setSession }) {
     setLoading(false);
 
     if (err) { setError(err.message || 'Signup failed'); return; }
-    setSession(data);   // ← updates App state immediately, triggers redirect
-    navigate('/dashboard');
+    setSession(data);
+    navigate('/order');
   };
 
   return (

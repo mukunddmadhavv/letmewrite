@@ -19,8 +19,8 @@ export default function Login({ setSession }) {
     setLoading(false);
 
     if (err) { setError(err.message || 'Invalid credentials'); return; }
-    setSession(data);   // ← updates App state immediately, triggers redirect
-    navigate('/dashboard');
+    setSession(data);
+    navigate('/order');
   };
 
   return (

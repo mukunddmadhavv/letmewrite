@@ -4,9 +4,7 @@ import { getSession } from './services/auth';
 import LandingPage from './pages/LandingPage';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
-import Dashboard from './pages/Dashboard';
 import OrderForm from './pages/OrderForm';
-import PaymentConfirm from './pages/PaymentConfirm';
 import './index.css';
 
 function ProtectedRoute({ children, session }) {
@@ -37,21 +35,11 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage session={session} />} />
-        <Route path="/login"  element={session ? <Navigate to="/dashboard" replace /> : <Login setSession={setSession} />} />
-        <Route path="/signup" element={session ? <Navigate to="/dashboard" replace /> : <Signup setSession={setSession} />} />
-        <Route path="/dashboard" element={
-          <ProtectedRoute session={session}>
-            <Dashboard session={session} setSession={setSession} />
-          </ProtectedRoute>
-        } />
+        <Route path="/login"  element={session ? <Navigate to="/order" replace /> : <Login setSession={setSession} />} />
+        <Route path="/signup" element={session ? <Navigate to="/order" replace /> : <Signup setSession={setSession} />} />
         <Route path="/order" element={
           <ProtectedRoute session={session}>
             <OrderForm session={session} />
-          </ProtectedRoute>
-        } />
-        <Route path="/payment" element={
-          <ProtectedRoute session={session}>
-            <PaymentConfirm />
           </ProtectedRoute>
         } />
         <Route path="*" element={<Navigate to="/" replace />} />

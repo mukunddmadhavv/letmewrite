@@ -26,9 +26,9 @@ export default function Navbar({ session }) {
         {/* Nav links */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           {session ? (
-            <Link to="/dashboard" className="btn btn-primary">
+            <Link to="/order" className="btn btn-primary">
               <LayoutDashboard size={15} />
-              Dashboard
+              Place Order
             </Link>
           ) : (
             <>
