@@ -40,21 +40,17 @@ export default function OrderForm({ session }) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [dragOver, setDragOver] = useState(false);
-  const [latestOrder, setLatestOrder] = useState(null);
-  const [expanded, setExpanded] = useState(false);
+  const [orders, setOrders] = useState([]);
+  const [expandedOrderId, setExpandedOrderId] = useState(null);
   const fileRef = useRef();
 
   const statusMap = { 'pending': 0, 'confirmed': 1, 'written': 2, 'delivered': 3 };
-  const currentStatusRaw = (latestOrder?.status || 'pending').toLowerCase();
-  const currentIndex = statusMap[currentStatusRaw] ?? 0;
-
   const timelineSteps = [
     { label: 'Pending', color: '#ffd400' },
     { label: 'Confirmed', color: '#1d9bf0' },
     { label: 'Written', color: '#8b5cf6' },
     { label: 'Delivered', color: '#00ba7c' },
   ];
-  const currentStatusColor = timelineSteps[currentIndex]?.color || '#ffd400';
 
   const total = form.pages * RATE;
   const minDate = new Date(Date.now() + 6 * 3600 * 1000).toISOString().slice(0, 16);
@@ -63,7 +59,8 @@ export default function OrderForm({ session }) {
     const fetchOrders = async () => {
       const { data, error } = await getUserOrders();
       if (data && data.length > 0) {
-        setLatestOrder(data[0]); // The most recent order
+        setOrders(data);
+        setExpandedOrderId(data[0].id);
       }
     };
     fetchOrders();
@@ -141,7 +138,8 @@ export default function OrderForm({ session }) {
       if (dbError) {
         throw new Error(dbError.message || 'Failed to save order to database.');
       } else {
-        setLatestOrder(dbOrder); // updates sidebar instantly
+        setOrders(prev => [dbOrder, ...prev]);
+        setExpandedOrderId(dbOrder.id);
       }
 
       // 4. Create WhatsApp message format
@@ -196,7 +194,7 @@ export default function OrderForm({ session }) {
         .order-sidebar {
           width: 320px;
           height: 100%;
-          overflow-y: hidden;
+          overflow-y: auto;
           flex-shrink: 0;
           background: rgba(255, 255, 255, 0.85);
           backdrop-filter: blur(20px);
@@ -280,85 +278,97 @@ export default function OrderForm({ session }) {
             Track Order
           </h2>
           
-          <div 
-            className="card" 
-            style={{ padding: '20px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 16, cursor: latestOrder ? 'pointer' : 'default', transition: 'all 0.2s' }}
-            onClick={() => latestOrder && setExpanded(!expanded)}
-          >
-            {latestOrder ? (
-              <>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-                  <Package size={20} color="var(--accent)" />
-                  <div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{latestOrder.title || 'Assignment Order'}</div>
-                    <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Created {new Date(latestOrder.createdAt || Date.now()).toLocaleDateString()}</div>
-                  </div>
-                </div>
-                
-                <div style={{ background: 'var(--bg-secondary)', padding: '12px', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Hash size={14} color="var(--text-muted)" />
-                    <span style={{ fontSize: 13, fontWeight: 600, fontFamily: 'monospace' }}>LMW-{latestOrder.id}</span>
-                  </div>
-                </div>
+          {orders.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {orders.map((order) => {
+                const isExpanded = expandedOrderId === order.id;
+                const currentStatusRaw = (order.status || 'pending').toLowerCase();
+                const currentIndex = statusMap[currentStatusRaw] ?? 0;
+                const currentStatusColor = timelineSteps[currentIndex]?.color || '#ffd400';
 
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ width: 8, height: 8, background: currentStatusColor, borderRadius: '50%', boxShadow: `0 0 8px ${currentStatusColor}66` }}></span>
-                    <span style={{ fontSize: 14, fontWeight: 700, color: currentStatusColor, textTransform: 'capitalize' }}>{latestOrder.status || 'Pending'}</span>
-                  </div>
-                  <ChevronDown size={18} color="var(--text-muted)" style={{ transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }} />
-                </div>
-                
-                {/* Timeline Dropdown */}
-                <div style={{
-                  maxHeight: expanded ? 400 : 0,
-                  opacity: expanded ? 1 : 0,
-                  overflow: 'hidden',
-                  transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                  marginTop: expanded ? 20 : 0
-                }}>
-                  <div style={{ paddingTop: 16, borderTop: '1px solid var(--border)' }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 16 }}>Order Timeline</div>
+                return (
+                  <div 
+                    key={order.id}
+                    className="card" 
+                    style={{ padding: '20px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 16, cursor: 'pointer', transition: 'all 0.2s' }}
+                    onClick={() => setExpandedOrderId(isExpanded ? null : order.id)}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                      <Package size={20} color="var(--accent)" />
+                      <div>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)' }}>{order.title || 'Assignment Order'}</div>
+                        <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Created {new Date(order.createdAt || Date.now()).toLocaleDateString()}</div>
+                      </div>
+                    </div>
                     
-                    <div style={{ position: 'relative', paddingLeft: 12 }}>
-                      {timelineSteps.map((stepInfo, idx) => {
-                        const isCompleted = idx <= currentIndex;
-                        const isCurrent = idx === currentIndex;
-                        const isLast = idx === timelineSteps.length - 1;
-                        const stepColor = stepInfo.color;
+                    <div style={{ background: 'var(--bg-secondary)', padding: '12px', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Hash size={14} color="var(--text-muted)" />
+                        <span style={{ fontSize: 13, fontWeight: 600, fontFamily: 'monospace' }}>LMW-{order.id}</span>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ width: 8, height: 8, background: currentStatusColor, borderRadius: '50%', boxShadow: `0 0 8px ${currentStatusColor}66` }}></span>
+                        <span style={{ fontSize: 14, fontWeight: 700, color: currentStatusColor, textTransform: 'capitalize' }}>{order.status || 'Pending'}</span>
+                      </div>
+                      <ChevronDown size={18} color="var(--text-muted)" style={{ transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s ease' }} />
+                    </div>
+                    
+                    {/* Timeline Dropdown */}
+                    <div style={{
+                      maxHeight: isExpanded ? 400 : 0,
+                      opacity: isExpanded ? 1 : 0,
+                      overflow: 'hidden',
+                      transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                      marginTop: isExpanded ? 20 : 0
+                    }}>
+                      <div style={{ paddingTop: 16, borderTop: '1px solid var(--border)' }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 16 }}>Order Timeline</div>
                         
-                        return (
-                          <div key={stepInfo.label} style={{ display: 'flex', gap: 16, position: 'relative', zIndex: 1, marginBottom: isLast ? 0 : 20, opacity: isCompleted ? 1 : 0.4 }}>
-                            {!isLast && (
-                              <div style={{ position: 'absolute', left: 4, top: 18, bottom: -12, width: 2, background: 'var(--border)', zIndex: -1 }}></div>
-                            )}
-                            <div style={{ 
-                              width: 10, height: 10, borderRadius: '50%', background: isCompleted ? stepColor : 'var(--bg-card)',
-                              border: `2px solid ${isCompleted ? stepColor : 'var(--border)'}`, 
-                              marginTop: 5,
-                              boxShadow: isCurrent ? `0 0 0 4px ${stepColor}33` : 'none',
-                              transition: 'all 0.3s'
-                            }}></div>
-                            <div>
-                              <div style={{ fontSize: 14, fontWeight: isCurrent ? 700 : 600, color: isCompleted ? stepColor : 'var(--text-muted)' }}>{stepInfo.label}</div>
-                              {isCurrent && <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>We are currently working on this step.</div>}
-                            </div>
-                          </div>
-                        );
-                      })}
+                        <div style={{ position: 'relative', paddingLeft: 12 }}>
+                          {timelineSteps.map((stepInfo, idx) => {
+                            const isCompleted = idx <= currentIndex;
+                            const isCurrent = idx === currentIndex;
+                            const isLast = idx === timelineSteps.length - 1;
+                            const stepColor = stepInfo.color;
+                            
+                            return (
+                              <div key={stepInfo.label} style={{ display: 'flex', gap: 16, position: 'relative', zIndex: 1, marginBottom: isLast ? 0 : 20, opacity: isCompleted ? 1 : 0.4 }}>
+                                {!isLast && (
+                                  <div style={{ position: 'absolute', left: 4, top: 18, bottom: -12, width: 2, background: 'var(--border)', zIndex: -1 }}></div>
+                                )}
+                                <div style={{ 
+                                  width: 10, height: 10, borderRadius: '50%', background: isCompleted ? stepColor : 'var(--bg-card)',
+                                  border: `2px solid ${isCompleted ? stepColor : 'var(--border)'}`, 
+                                  marginTop: 5,
+                                  boxShadow: isCurrent ? `0 0 0 4px ${stepColor}33` : 'none',
+                                  transition: 'all 0.3s'
+                                }}></div>
+                                <div>
+                                  <div style={{ fontSize: 14, fontWeight: isCurrent ? 700 : 600, color: isCompleted ? stepColor : 'var(--text-muted)' }}>{stepInfo.label}</div>
+                                  {isCurrent && <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2 }}>We are currently working on this step.</div>}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </>
-            ) : (
+                );
+              })}
+            </div>
+          ) : (
+            <div className="card" style={{ padding: '20px', background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 16 }}>
               <div style={{ textAlign: 'center', padding: '20px 0' }}>
                 <Clock size={32} color="var(--text-muted)" style={{ margin: '0 auto 12px', opacity: 0.5 }} />
                 <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>No active orders</p>
                 <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>Place an order to start tracking</p>
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
           <div style={{ marginTop: 16, padding: '16px', background: 'var(--bg-card)', borderRadius: 16, border: '1px solid var(--border)' }}>
             <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 14 }}>

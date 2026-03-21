@@ -1,4 +1,5 @@
-const API_URL = 'http://localhost:5001/api/orders';
+const BASE_URL = import.meta.env.DEV ? 'http://localhost:5001' : 'https://letmewrite.onrender.com';
+const API_URL = `${BASE_URL}/api/orders`;
 
 const getHeaders = () => {
   const token = localStorage.getItem('token');
