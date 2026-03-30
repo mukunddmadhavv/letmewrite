@@ -112,7 +112,7 @@ export default function LandingPage({ session }) {
 
           {/* Trust badges */}
           <div style={{ marginTop: 48, display: 'flex', justifyContent: 'center', gap: 32, flexWrap: 'wrap' }}>
-            {['✅ Plagiarism-Free', '⚡ 24-48 Hr Delivery', '🔁 Free Revisions', '₹10 / Page'].map(t => (
+            {['✅ Plagiarism-Free', '⚡ 24-48 Hr Delivery', '🔁 Free Revisions', '₹15 / Page'].map(t => (
               <span key={t} style={{ fontSize: 13, color: 'var(--text-muted)', fontWeight: 500 }}>{t}</span>
             ))}
           </div>
