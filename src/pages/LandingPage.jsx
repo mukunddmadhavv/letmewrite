@@ -90,7 +90,7 @@ export default function LandingPage({ session }) {
           </h1>
 
           <p style={{ fontSize: 'clamp(16px, 2.5vw, 20px)', color: 'var(--text-secondary)', maxWidth: 520, margin: '0 auto 40px', lineHeight: 1.7 }}>
-            Get high-quality assignments at just <strong style={{ color: 'var(--text-primary)' }}>₹10 per page</strong>. Submit your brief, we handle the rest.
+            Get high-quality assignments at just <strong style={{ color: 'var(--text-primary)' }}>₹15 per page</strong>. Submit your brief, we handle the rest.
           </p>
 
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
